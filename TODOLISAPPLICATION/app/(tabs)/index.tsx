@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import Entypo from "@expo/vector-icons/Entypo";
+
 //TouchableOpacity 누르는 이벤트를 listen할 준비가된 View 라고할수있음. opacity 는 애니메이션 효과가있어서임 activeOpacity={0} Props를줘서 opacity를 설정할수 있음 onPress ㅖ개ㅔㄴfh
 //TouchableHighlight 는 더많은 속성을 가지고있음. 배경색을 바꾸게해줄수있음
 //TouchableWithoutFeedback 는 아무런 애니메이션이없음
@@ -30,25 +31,41 @@ import Entypo from "@expo/vector-icons/Entypo";
 const STORAGE_KEY = "@toDos";
 const WORKING_KEY = "@working";
 const FINISH_KEY = "@finish";
+
+interface Todo {
+  text: string;
+  isEdit: boolean;
+  working: boolean;
+  finish: boolean;
+}
+
+interface Todos {
+  [key: string]: Todo;
+}
 export default function App() {
   ////working
-  const [working, setWorking] = useState(loadWorking);
 
-  const saveWorking = async (toSave) => {
+  const saveWorking = async (toSave: any) => {
     await AsyncStorage.setItem(WORKING_KEY, JSON.stringify(toSave));
   };
   const loadWorking = async () => {
     try {
       const s = await AsyncStorage.getItem(WORKING_KEY);
-      setWorking(JSON.parse(s));
-    } catch {
+      setWorking(s !== null ? JSON.parse(s) : null);
+    } catch (err) {
       console.log(err, "error");
     }
   };
 
+  const [working, setWorking] = useState({});
+
   useEffect(() => {
     saveWorking(working);
   }, [working]);
+
+  useEffect(() => {
+    loadWorking(); // 컴포넌트가 마운트될 때 데이터 로드
+  }, []);
 
   const travel = async () => {
     const newWorking = { ...working };
@@ -63,8 +80,8 @@ export default function App() {
   /////finish
   const [finish, setFinish] = useState(false);
 
-  const finishToDo = async (key) => {
-    const newToDos = { ...toDos };
+  const finishToDo = async (key: any) => {
+    const newToDos: any = { ...toDos };
     newToDos[key] = {
       ...newToDos[key],
       finish: !newToDos[key].finish,
@@ -73,10 +90,10 @@ export default function App() {
     await saveToDos(newToDos);
   };
   ///////
-  const onChangeText = (payload) => setText(payload);
+  const onChangeText = (payload: string) => setText(payload);
   const [text, setText] = useState("");
-  const [toDos, setToDos] = useState({});
-  const saveToDos = async (toSave) => {
+  const [toDos, setToDos] = useState<Todos>({});
+  const saveToDos = async (toSave: string) => {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   };
 
@@ -88,7 +105,7 @@ export default function App() {
       } else {
         console.log("저장된 데이터가 없습니다."); // null인 경우 처리
       }
-    } catch {
+    } catch (err) {
       console.log(err, "error");
     }
   };
@@ -103,7 +120,7 @@ export default function App() {
       return;
     }
 
-    const newToDos = {
+    const newToDos: any = {
       ...toDos,
       [Date.now()]: { text, working, finish, isEdit },
     };
@@ -112,14 +129,15 @@ export default function App() {
     setText("");
   };
   console.log(toDos);
-  const deleteToDo = (key) => {
+
+  const deleteToDo = (key: any) => {
     Alert.alert("Delete To Do?", " Are you sure?", [
       { text: "Cancel" },
       {
         text: "I'm Sure",
         style: "destructive",
         onPress: () => {
-          const newToDos = { ...toDos };
+          const newToDos: any = { ...toDos };
           delete newToDos[key];
           setToDos(newToDos);
           saveToDos(newToDos);
@@ -130,8 +148,8 @@ export default function App() {
 
   ////////////// edit
   const [isEdit, setIsEdit] = useState(false);
-  const [editText, setEditText] = useState({}); // 각 toDo의 수정할 텍스트 상태
-  const inputRef = useRef(null);
+  const [editText, setEditText] = useState<{ [key: string]: string }>({});
+  const inputRef = useRef<TextInput | null>(null);
 
   useEffect(() => {
     // isEdit이 true인 경우에만 focus를 줌
@@ -141,8 +159,8 @@ export default function App() {
     }
   }, [toDos]); // toDos가 변경될 때마다 실행
 
-  const editTodo = (key) => {
-    const newToDos = { ...toDos };
+  const editTodo = (key: string) => {
+    const newToDos: any = { ...toDos };
     // 현재 toDo의 isEdit 상태를 반전
     newToDos[key].isEdit = !newToDos[key].isEdit;
     // 편집 모드로 들어갈 때 수정 텍스트 상태를 설정
@@ -154,15 +172,15 @@ export default function App() {
     setToDos(newToDos);
   };
 
-  const handleBlur = (key) => {
-    const newToDos = { ...toDos };
+  const handleBlur = (key: any) => {
+    const newToDos: any = { ...toDos };
     newToDos[key].isEdit = false; // 포커스가 벗어날 때 isEdit을 false로 설정
     setToDos(newToDos);
     handleSubmitEditing(key);
   };
 
-  const handleSubmitEditing = async (key) => {
-    const newToDos = { ...toDos };
+  const handleSubmitEditing = async (key: any) => {
+    const newToDos: any = { ...toDos };
     newToDos[key].text = editText[key]; // 수정된 텍스트로 업데이트
     newToDos[key].isEdit = false; // 편집 모드 종료
 
