@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "GeofencingApp",
+    "slug": "GeofencingApp",
+    "version": "1.0.0",
+    "extra": {
+      "eas": {
+        "projectId": "38503102-abb9-4895-92c6-aa35e1edd563"
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "androidTest",
+    "slug": "androidTest",
+    "version": "1.0.0",
+    "plugins": [
+      [
+        "react-native-background-geolocation",
+        {
+          "license": "YOUR_LICENSE_KEY_HERE"
+        }
+      ],
+      [
+        "expo-gradle-ext-vars",
+        {
+          "googlePlayServicesLocationVersion": "21.1.0",
+          "appCompatVersion": "1.4.2"
+        }
+      ],
+      "react-native-background-fetch"
+    ]
+  }
+}
