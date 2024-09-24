@@ -72,20 +72,6 @@ export default function App() {
     };
   }, [currentLocation]);
 
-  if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        console.log(`현재 위치: 위도 ${latitude}, 경도 ${longitude}`);
-      },
-      (error) => {
-        console.error("위치 정보를 가져오는 데 실패했습니다:", error);
-      }
-    );
-  } else {
-    console.log("이 브라우저는 Geolocation을 지원하지 않습니다.");
-  }
 
   return (
     <View style={styles.container}>

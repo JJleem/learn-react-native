@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "GeofencingLocation",
+    "slug": "GeofencingLocation",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "이 앱은 사용자의 위치를 사용하여 Geofence 기능을 제공합니다.",
+        "NSLocationAlwaysUsageDescription": "이 앱은 백그라운드에서 사용자의 위치를 사용하여 Geofence 기능을 제공합니다."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
