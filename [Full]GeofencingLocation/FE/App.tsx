@@ -7,6 +7,42 @@ import { useEffect, useState } from "react";
 import MapView, { Callout, Marker, Polygon } from "react-native-maps";
 import { Image } from "react-native";
 import * as Notifications from "expo-notifications";
+import axios from "axios";
+import GetLocationData from "./components/GetLocationData";
+
+const sendLocationData = async (
+  latitude: number,
+  longitude: number,
+  timeStamps: number | undefined,
+  isCheck: boolean
+) => {
+  try {
+    const response = await axios.post("http://192.168.0.68:5000/locationdata", {
+      latitude,
+      longitude,
+      timeStamps,
+      isCheck,
+    });
+    console.log("데이터 전송", response.data);
+  } catch (err) {
+    console.log("err location data", err);
+  }
+};
+
+interface LocationObject {
+  coords: {
+    latitude: number;
+    longitude: number;
+    altitude?: number;
+    accuracy?: number;
+    altitudeAccuracy?: number;
+    heading?: number;
+    speed?: number;
+  };
+  timestamp?: number;
+  mocked?: boolean;
+}
+
 interface GeoFenceRegion {
   latitude: number;
   longitude: number;
@@ -44,7 +80,7 @@ export default function App() {
   const [timestampString, setTimestampString] = useState<string | null>(null);
   const [permissionGranted, setPermissionGranted] = useState(false); // 사용자 인증 수락여부
   const [isInsideGeofence, setIsInsideGeofence] = useState(false); // 범위안에들어왔는지 아닌지
-  console.log(location);
+
   /// 앱 시작하자마자 Permission을 받아오고 수락한다면 현재위치를 location에 저장하는 함수
   useEffect(() => {
     const askForLocationPermission = async () => {
@@ -60,17 +96,15 @@ export default function App() {
     askForLocationPermission();
   }, []);
   /// 앱 시작하자마자 Permission을 받아오고 수락한다면 현재위치를 location에 저장하는 함수
-
   useEffect(() => {
     if (permissionGranted) {
       const locationSubscription = Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
           distanceInterval: 10,
-          timeInterval: 100,
+          timeInterval: 1000,
         },
         (newLocation) => {
-          setLocation(newLocation);
           const currentlyInsideGeofence = checkInGeofence(newLocation);
           if (currentlyInsideGeofence && !isInsideGeofence) {
             setIsInsideGeofence(true);
@@ -81,6 +115,12 @@ export default function App() {
             Alert.alert("체크아웃 완료! Geofence 밖에 있습니다.");
             console.log("체크아웃 완료! Geofence 밖에 있습니다.");
           }
+          sendLocationData(
+            location?.coords.latitude ?? 0,
+            location?.coords.longitude ?? 0,
+            location?.timestamp, // 또는 다른 적절한 값으로 변경
+            isInsideGeofence
+          );
         }
       );
 
@@ -88,7 +128,7 @@ export default function App() {
         locationSubscription.then((sub) => sub.remove());
       };
     }
-  }, [permissionGranted, isInsideGeofence]);
+  }, [permissionGranted, isInsideGeofence, location]);
 
   const checkInGeofence = (location: Location.LocationObject) => {
     const distance = getDistance(
@@ -140,13 +180,6 @@ export default function App() {
     });
   };
 
-  const handleSendNotification = () => {
-    if (permissionGranted) {
-      sendNotification("위치 체크 완료!");
-    } else {
-      Alert.alert("알림 권한이 필요합니다.");
-    }
-  };
   return (
     <MainView>
       <LocationText>Geofencing Test</LocationText>
@@ -232,18 +265,18 @@ export default function App() {
           <LocationText>경도: Test</LocationText>
         </>
       )}
-      <Button title="send" onPress={handleSendNotification}></Button>
+      <GetLocationData />
     </MainView>
   );
 }
 
-const MainView = styled.View`
+export const MainView = styled.View`
   background: aliceblue;
   flex: 1;
   justify-content: center;
   align-items: center;
 `;
-const LocationText = styled.Text`
+export const LocationText = styled.Text`
   font-weight: 700;
   font-size: 15px;
 `;
